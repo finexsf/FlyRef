@@ -1,0 +1,998 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>篮球裁判系统</title>
+    <style>
+        :root {
+            font-size: 90%;
+        }
+
+        body {
+            background-color: #4a5568;
+            color: white;
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 8px;
+        }
+
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 10px;
+        }
+
+        .logo {
+            height: 54px;
+            display: flex;
+            align-items: center;
+            margin-top: 5px;
+        }
+
+        .logo img {
+            height: 100%;
+            width: auto;
+            object-fit: contain;
+        }
+
+        .timer-section {
+            text-align: center;
+            margin-bottom: 15px;
+            background: rgba(0, 0, 0, 0.2);
+            border-radius: 10px;
+            padding: 10px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        .phase-text {
+            font-size: 24px;
+            margin-bottom: 5px;
+            font-weight: bold;
+            text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.5);
+        }
+
+        .main-timer {
+            font-size: 46px;
+            font-family: 'Digital-7', monospace;
+            margin-bottom: 10px;
+            background: rgba(0, 0, 0, 0.6);
+            border-radius: 8px;
+            padding: 5px 15px;
+            display: inline-block;
+            box-shadow: inset 0 0 10px rgba(0, 0, 0, 0.5);
+            color: #4fd1ea;
+            letter-spacing: 2px;
+            text-shadow: 0 0 10px rgba(79, 209, 234, 0.5);
+        }
+
+        .control-buttons {
+            display: flex;
+            justify-content: center;
+            gap: 8px;
+            margin-bottom: 10px;
+        }
+
+        .control-btn {
+            padding: 8px 15px;
+            border-radius: 5px;
+            border: none;
+            cursor: pointer;
+            font-weight: bold;
+            transition: all 0.2s;
+        }
+
+        .control-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+        }
+
+        .game-area {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 0;
+        }
+
+        .team-section {
+            width: 280px;
+            padding: 12px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .team-blue {
+            background-color: #0bc5ea;
+        }
+
+        .team-red {
+            background-color: #f56565;
+        }
+
+        .team-name {
+            font-size: 28px;
+            margin-bottom: 10px;
+            font-weight: bold;
+        }
+
+        .team-score {
+            font-size: 54px;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+        }
+
+        .timer-display {
+            background-color: white;
+            color: black;
+            padding: 5px 15px;
+            border-radius: 5px;
+            display: inline-block;
+            margin-bottom: 5px;
+            font-size: 22px;
+            font-weight: bold;
+            box-shadow: inset 0 0 5px rgba(0, 0, 0, 0.2);
+            font-family: 'Digital-7', monospace;
+        }
+
+        .court-area {
+            flex: 1;
+            margin: 0 20px;
+            position: relative;
+            min-width: 800px;
+        }
+
+        .court-image {
+            width: 100%;
+            height: 380px;
+            background-color: #718096;
+            border-radius: 10px;
+            position: relative;
+            display: flex;
+            justify-content: space-between;
+            padding: 20px;
+            box-sizing: border-box;
+            border: 2px solid #4a5568;
+            overflow: hidden;
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.2);
+            background-position: center center !important;
+            background-repeat: no-repeat !important;
+            background-size: contain !important;
+        }
+
+        .left-score-controls, .right-score-controls {
+            display: flex;
+            flex-direction: column;
+            justify-content: space-around;
+            width: 120px;
+            z-index: 2;
+            background-color: rgba(0, 0, 0, 0.1);
+            padding: 10px;
+            border-radius: 5px;
+        }
+
+        .score-box {
+            background-color: white;
+            border-radius: 5px;
+            padding: 2px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin: 5px 0;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .score-box button {
+            width: 25px;
+            height: 25px;
+            border: none;
+            border-radius: 3px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: all 0.2s;
+        }
+
+        .score-box button:hover {
+            transform: scale(1.1);
+        }
+
+        .score-minus {
+            background-color: #e53e3e;
+            color: white;
+        }
+
+        .score-plus {
+            background-color: #48bb78;
+            color: white;
+        }
+
+        .score-display {
+            width: 25px;
+            text-align: center;
+            font-weight: bold;
+            color: black;
+        }
+
+        .left-score-controls .score-box {
+            background-color: rgba(255, 99, 99, 0.9);
+        }
+
+        .right-score-controls .score-box {
+            background-color: rgba(99, 179, 255, 0.9);
+        }
+
+        .center-score {
+            margin-top: auto;
+        }
+
+        .history-section {
+            width: 100%;
+            height: 180px;
+            margin-top: 10px;
+        }
+
+        .history-header {
+            display: flex;
+            justify-content: center;
+            padding: 0 10px 5px 10px;
+            border-bottom: 1px solid #ccc;
+            font-weight: bold;
+        }
+
+        .history-header span {
+            flex: 1;
+            text-align: center;
+        }
+
+        .history-content {
+            height: calc(100% - 30px);
+            overflow-y: auto;
+        }
+
+        .history-content div {
+            display: flex;
+            justify-content: center;
+            padding: 5px 10px;
+        }
+
+        .history-content div span {
+            flex: 1;
+            text-align: center;
+        }
+
+        .left-score-controls {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .right-score-controls {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .score-box {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .score-minus {
+            width: 20px;
+            height: 20px;
+            border-radius: 5px;
+            border: none;
+            cursor: pointer;
+            font-size: 20px;
+        }
+
+        .score-display {
+            width: 50px;
+            text-align: center;
+        }
+
+        .score-plus {
+            width: 20px;
+            height: 20px;
+            border-radius: 5px;
+            border: none;
+            cursor: pointer;
+            font-size: 20px;
+        }
+
+        .center-score {
+            margin: 0 10px;
+        }
+
+        .score-area {
+            position: absolute;
+            display: flex;
+            gap: 5px;
+        }
+
+        .score-area.two-points-left {
+            left: 15%;
+            top: 60%;
+        }
+
+        .score-area.two-points-right {
+            right: 15%;
+            top: 60%;
+        }
+
+        .score-area.three-points-left {
+            left: 5%;
+            top: 40%;
+        }
+
+        .score-area.three-points-right {
+            right: 5%;
+            top: 40%;
+        }
+
+        .score-area.seven-points-left {
+            left: 25%;
+            top: 50%;
+        }
+
+        .score-area.seven-points-right {
+            right: 25%;
+            top: 50%;
+        }
+
+        .score-box {
+            background: rgba(255, 255, 255, 0.9);
+            border-radius: 5px;
+            padding: 3px;
+            display: flex;
+            align-items: center;
+            gap: 3px;
+        }
+
+        .score-box button {
+            width: 25px;
+            height: 25px;
+            border: none;
+            border-radius: 3px;
+            cursor: pointer;
+            font-weight: bold;
+            background: white;
+        }
+
+        .score-box .score-minus {
+            background: #e53e3e;
+            color: white;
+        }
+
+        .score-box .score-plus {
+            background: #48bb78;
+            color: white;
+        }
+
+        .score-display {
+            width: 25px;
+            text-align: center;
+            font-weight: bold;
+            color: black;
+        }
+
+        .score-area-left .score-box {
+            background: rgba(255, 99, 99, 0.9);
+        }
+
+        .score-area-right .score-box {
+            background: rgba(99, 179, 255, 0.9);
+        }
+
+        .phase-timer {
+            text-align: center;
+            font-size: 32px;
+            color: white;
+            font-weight: bold;
+            text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.3);
+            padding: 5px 15px;
+            position: absolute;
+            width: 100%;
+            top: -15px;
+            display: none; /* 默认隐藏，只在控球变更阶段显示 */
+        }
+
+        /* 更新控球变更时间的样式 */
+        .phase-timer.active {
+            display: block;
+            background-color: rgba(66, 153, 225, 0.8);
+            border-radius: 5px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+            animation: pulse 1s infinite alternate;
+        }
+
+        @keyframes pulse {
+            from { opacity: 0.8; }
+            to { opacity: 1; }
+        }
+
+        .court-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin-top: 40px;
+        }
+
+        .phase-text {
+            position: relative;
+            display: inline-block;
+            padding: 5px 20px;
+            font-size: 24px;
+            margin-bottom: 10px;
+            border-radius: 5px;
+        }
+
+        .phase-text.red {
+            background-color: rgba(245, 101, 101, 0.8);
+        }
+
+        .phase-text.blue {
+            background-color: rgba(11, 197, 234, 0.8);
+        }
+
+        .phase-text.setup {
+            background-color: rgba(72, 187, 120, 0.8);
+        }
+
+        @keyframes blinkBlue {
+            0% { background-color: #0bc5ea; }
+            50% { background-color: #4fd1ea; }
+            100% { background-color: #0bc5ea; }
+        }
+
+        @keyframes blinkRed {
+            0% { background-color: #f56565; }
+            50% { background-color: #ff8585; }
+            100% { background-color: #f56565; }
+        }
+
+        .team-blue.active {
+            animation: blinkBlue 0.5s infinite;
+        }
+
+        .team-red.active {
+            animation: blinkRed 0.5s infinite;
+        }
+
+        .settings {
+            display: flex;
+            gap: 10px;
+            margin-top: 5px;
+        }
+
+        .team-section .control-btn {
+            margin: 3px 0;
+            width: 90%;
+        }
+
+        .team-section .control-btn:nth-child(4) {
+            margin-bottom: 15px;
+        }
+
+        .foul-area {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 10px;
+            margin-top: 8px;
+            gap: 15px;
+            background: rgba(0, 0, 0, 0.2);
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        .foul-btn {
+            padding: 8px 18px;
+            border: none;
+            border-radius: 5px;
+            font-size: 14px;
+            font-weight: bold;
+            cursor: pointer;
+            color: white;
+            transition: all 0.2s;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+        }
+
+        .foul-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+        }
+
+        .blue-foul {
+            background-color: white;
+            color: #0bc5ea;
+            border: 2px solid #0bc5ea;
+        }
+
+        .red-foul {
+            background-color: white;
+            color: #f56565;
+            border: 2px solid #f56565;
+        }
+
+        .blue-foul:hover {
+            background-color: #0bc5ea;
+            color: white;
+        }
+
+        .red-foul:hover {
+            background-color: #f56565;
+            color: white;
+        }
+
+        .penalty-trigger {
+            padding: 8px 18px;
+            border: none;
+            border-radius: 5px;
+            font-size: 14px;
+            font-weight: bold;
+            cursor: pointer;
+            background-color: #48bb78;
+            color: white;
+            transition: all 0.2s;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+        }
+
+        .penalty-trigger:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+        }
+
+        .penalty-modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+
+        .penalty-content {
+            background-color: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.5);
+        }
+
+        .penalty-buttons {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .penalty-group {
+            display: flex;
+            gap: 10px;
+        }
+
+        .penalty-btn {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 5px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            color: white;
+            transition: all 0.2s;
+        }
+
+        .penalty-btn[data-team="blue"] {
+            background-color: #0bc5ea;
+        }
+
+        .penalty-btn[data-team="red"] {
+            background-color: #f56565;
+        }
+
+        .penalty-btn:hover {
+            transform: translateY(-2px);
+            opacity: 0.9;
+        }
+
+        .game-area {
+            margin-bottom: 0;
+        }
+
+        .foul-type-modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+
+        .foul-type-content {
+            background-color: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.5);
+        }
+
+        .foul-type-buttons {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .foul-type-btn {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 5px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            color: white;
+            transition: all 0.2s;
+        }
+
+        .foul-type-btn.collision {
+            background-color: #e53e3e;
+        }
+
+        .foul-type-btn.out {
+            background-color: #718096;
+        }
+
+        .foul-type-btn:hover {
+            transform: translateY(-2px);
+        }
+        
+        /* 新增游戏模式选择按钮区域 */
+        .mode-selection {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            margin-top: 5px;
+            margin-bottom: 10px;
+        }
+        
+        .mode-btn {
+            padding: 7px 15px;
+            border: none;
+            border-radius: 5px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            color: white;
+            transition: all 0.2s;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .mode-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+        }
+        
+        .mode-btn.group {
+            background-color: #4299e1;
+        }
+        
+        .mode-btn.elimination {
+            background-color: #ed8936;
+        }
+        
+        /* 修改active状态样式为高亮效果 */
+        .mode-btn.active {
+            box-shadow: 0 0 15px #fff, 0 0 20px #fff;
+            border: 2px solid white;
+            font-weight: bolder;
+            animation: highlight-pulse 1.5s infinite alternate;
+        }
+        
+        /* 添加高亮动画 */
+        @keyframes highlight-pulse {
+            from {
+                box-shadow: 0 0 5px white, 0 0 10px white;
+            }
+            to {
+                box-shadow: 0 0 10px white, 0 0 20px white, 0 0 30px rgba(255, 255, 255, 0.5);
+            }
+        }
+
+        /* 添加图标字体 */
+        @font-face {
+            font-family: 'Digital-7';
+            src: url('https://cdn.jsdelivr.net/npm/digital-7-font@1.0.1/Digital-7.ttf') format('truetype');
+        }
+        
+        /* 得分面板样式 */
+        .score-panel {
+            position: relative;
+            width: 100%;
+            background-color: rgba(0, 0, 0, 0.3);
+            border-radius: 8px;
+            padding: 8px;
+            margin-top: 10px;
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+        }
+        
+        .score-panel-red {
+            border: none;
+            background: linear-gradient(135deg, rgba(245, 101, 101, 0.8), rgba(229, 62, 62, 0.6));
+        }
+        
+        .score-panel-blue {
+            border: none;
+            background: linear-gradient(135deg, rgba(66, 153, 225, 0.8), rgba(49, 130, 206, 0.6));
+        }
+        
+        .panel-header {
+            text-align: center;
+            font-weight: bold;
+            padding: 5px;
+            border-radius: 4px;
+            margin-bottom: 8px;
+            font-size: 16px;
+            background-color: rgba(255, 255, 255, 0.2);
+            color: white;
+        }
+        
+        .score-buttons {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 8px;
+        }
+        
+        .score-btn {
+            padding: 8px;
+            border: none;
+            border-radius: 5px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            color: #2d3748;
+            height: 60px;
+        }
+        
+        .score-btn i {
+            font-size: 18px;
+            margin-bottom: 4px;
+        }
+        
+        .dunk-btn {
+            background: linear-gradient(to bottom, #fed7d7, #feb2b2);
+            grid-column: 1 / -1;
+        }
+        
+        .three-pointer-btn {
+            background: linear-gradient(to bottom, #bee3f8, #90cdf4);
+        }
+        
+        .two-pointer-btn {
+            background: linear-gradient(to bottom, #e2e8f0, #cbd5e0);
+        }
+        
+        .dribble-btn {
+            background: linear-gradient(to bottom, #feebc8, #fbd38d);
+            grid-column: 1 / -1;
+            position: relative;
+        }
+        
+        .dribble-counter {
+            position: absolute;
+            top: 8px;
+            right: 8px;
+            background-color: rgba(0, 0, 0, 0.2);
+            border-radius: 10px;
+            padding: 2px 6px;
+            font-size: 12px;
+        }
+        
+        .score-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        
+        /* 调整球场区域 */
+        .court-image {
+            background-position: center center !important;
+            background-repeat: no-repeat !important;
+            background-size: contain !important;
+        }
+        
+        /* 移除原有的score-panel样式 */
+        .court-image .score-panel {
+            display: none;
+        }
+    </style>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+</head>
+<body>
+    <div class="header">
+        <div class="logo">
+            <img src="xueyuan.png" alt="学院logo">
+        </div>
+        <div class="settings">
+            <button class="sound-toggle-btn active">
+                <i class="fas fa-volume-up"></i>
+            </button>
+            <button class="control-btn" style="background-color: #e53e3e; color: white;">
+                <i class="fas fa-power-off"></i> 强制重启
+            </button>
+            <button class="control-btn" style="background-color: #4a5568;">
+                <i class="fas fa-edit"></i> 队伍名称
+            </button>
+        </div>
+    </div>
+
+    <div class="mode-selection">
+        <button class="mode-btn group active">小组循环赛</button>
+        <button class="mode-btn elimination">淘汰赛</button>
+    </div>
+
+    <div class="timer-section">
+        <div class="phase-text">准备</div>
+        <div class="main-timer">00:10.000</div>
+        <div class="control-buttons">
+            <button class="control-btn" style="background-color: #718096;"><i class="fas fa-step-forward"></i> 下一个</button>
+            <button class="control-btn" style="background-color: #48bb78;"><i class="fas fa-play"></i> 开始</button>
+            <button class="control-btn" style="background-color: #f6ad55;"><i class="fas fa-pause"></i> 暂停</button>
+            <button class="control-btn" style="background-color: #e53e3e;"><i class="fas fa-redo"></i> 重置</button>
+            <!-- 新增犯规暂停按钮 -->
+            <button class="control-btn" style="background-color: #2d3748; color: #fff;"><i class="fas fa-hand-paper"></i> 犯规暂停</button>
+        </div>
+    </div>
+
+    <!-- 修改游戏区域布局 -->
+    <div class="game-area">
+        <!-- 蓝队按钮区域 -->
+        <div class="team-section team-blue">
+            <div class="team-name">Blue</div>
+            <div class="team-score">0</div>
+            <div class="timer-display">20.00</div>
+            <!-- 现在开始按钮 -->
+            <button class="control-btn"><i class="fas fa-play-circle"></i> 现在开始</button>
+            <!-- 新增控球变更按钮 -->
+            <button class="control-btn possession-change-trigger" style="background-color:#4299e1;color:white;margin-bottom:8px;"><i class="fas fa-random"></i> 控球变更</button>
+            <!-- 添加蓝队得分面板 -->
+            <div class="score-panel score-panel-blue">
+                <div class="panel-header">蓝队得分</div>
+                <div class="score-buttons">
+                    <button class="score-btn dunk-btn" data-team="blue" data-points="7">
+                        <i class="fas fa-basketball-ball"></i> 扣篮 (7分)
+                    </button>
+                    <button class="score-btn three-pointer-btn" data-team="blue" data-points="3">
+                        <i class="fas fa-bullseye"></i> 三分球
+                    </button>
+                    <button class="score-btn two-pointer-btn" data-team="blue" data-points="2">
+                        <i class="fas fa-dot-circle"></i> 二分球
+                    </button>
+                    <button class="score-btn dribble-btn" data-team="blue" data-points="1">
+                        <i class="fas fa-running"></i> 运球 (1分)
+                        <span class="dribble-counter">0/2</span>
+                    </button>
+                </div>
+            </div>
+            
+            <div class="history-section">
+                <div class="history-header">
+                    <span>行为</span>
+                    <span>时间</span>
+                </div>
+                <div class="history-content"></div>
+            </div>
+        </div>
+        <!-- 蓝队犯规面板 -->
+        <div class="foul-panel foul-panel-blue" style="width:220px;display:flex;flex-direction:column;align-items:center;justify-content:flex-start;background:rgba(11,197,234,0.15);border-radius:8px;margin:8px 4px 0 0;padding:8px;">
+            <div style="font-size:20px;font-weight:bold;color:#0bc5ea;margin-bottom:6px;white-space:nowrap;">犯规面板</div>
+            <div style="color:#0bc5ea;font-weight:bold;margin-bottom:4px;">攻方犯规</div>
+            <button class="foul-btn blue-foul" style="background:white;color:#0bc5ea;border:2px solid #0bc5ea;width:90%;margin-bottom:4px;white-space:nowrap;" data-team="blue" data-action="蓝方犯规"><i class="fas fa-flag"></i> 蓝方犯规</button>
+            <button class="foul-btn possession-change-btn" data-team="blue" style="background:#4299e1;color:white;width:90%;margin-bottom:8px;white-space:nowrap;"><i class="fas fa-random"></i> 控球变更</button>
+            <div style="width:90%;height:1px;background:#fff;margin:4px 0 8px 0;"></div>
+            <div style="color:#0bc5ea;font-weight:bold;margin-bottom:4px;">守方犯规</div>
+            <div style="display:flex;flex-direction:column;gap:6px;margin-bottom:8px;width:100%;align-items:center;">
+                <button class="foul-btn blue-penalty-btn" data-team="blue" data-action="罚球" style="background:#fff;color:#0bc5ea;border:2px solid #0bc5ea;padding:4px 10px;font-size:14px;width:90%;">攻方罚球</button>
+                <button class="foul-btn blue-ban15-btn" data-team="blue" data-action="禁赛15s" style="background:#fff;color:#0bc5ea;border:2px solid #0bc5ea;padding:4px 10px;font-size:14px;width:90%;">禁赛15s</button>
+                <button class="foul-btn blue-ban30-btn" data-team="blue" data-action="禁赛30s" style="background:#fff;color:#0bc5ea;border:2px solid #0bc5ea;padding:4px 10px;font-size:14px;width:90%;">禁赛30s</button>
+                <!-- 蓝队禁赛倒计时显示区域 -->
+                <div class="ban-timer-display" data-team="blue" style="background:white;color:#0bc5ea;border:2px solid #0bc5ea;border-radius:5px;display:inline-block;margin-bottom:4px;font-size:14px;font-weight:bold;box-shadow:inset 0 0 5px rgba(0,0,0,0.2);font-family:'Digital-7',monospace;text-align:center;width:90%;height:32px;line-height:32px;padding:0;">0.00</div>
+            </div>
+            <div class="foul-history-section" style="width:100%;margin-top:8px;">
+                <div class="history-header" style="white-space:nowrap;">
+                    <span style="flex:1;text-align:center;width:100%;">行为</span>
+                    <span style="flex:1;text-align:center;width:100%;">犯规时间</span>
+                </div>
+                <div class="foul-history-content" style="white-space:nowrap;"></div>
+            </div>
+        </div>
+        <!-- 球场区域，缩小场地图 -->
+        <div class="court-area" style="min-width:600px;max-width:700px;">
+            <div class="phase-timer"></div>
+            <div class="court-container">
+                <div class="court-image" style="background: url('GameField.png') center center no-repeat; background-size: contain; width:100%; height:280px;">
+                    <!-- 移除此处的得分面板 -->
+                </div>
+            </div>
+        </div>
+        <!-- 红队犯规面板 -->
+        <div class="foul-panel foul-panel-red" style="width:220px;display:flex;flex-direction:column;align-items:center;justify-content:flex-start;background:rgba(245,101,101,0.15);border-radius:8px;margin:8px 0 0 4px;padding:8px;">
+            <div style="font-size:20px;font-weight:bold;color:#f56565;margin-bottom:6px;white-space:nowrap;">犯规面板</div>
+            <div style="color:#f56565;font-weight:bold;margin-bottom:4px;">攻方犯规</div>
+            <button class="foul-btn red-foul" style="background:white;color:#f56565;border:2px solid #f56565;width:90%;margin-bottom:4px;white-space:nowrap;" data-team="red" data-action="红方犯规"><i class="fas fa-flag"></i> 红方犯规</button>
+            <button class="foul-btn possession-change-btn" data-team="red" style="background:#f56565;color:white;width:90%;margin-bottom:8px;white-space:nowrap;"><i class="fas fa-random"></i> 控球变更</button>
+            <div style="width:90%;height:1px;background:#fff;margin:4px 0 8px 0;"></div>
+            <div style="color:#f56565;font-weight:bold;margin-bottom:4px;">守方犯规</div>
+            <div style="display:flex;flex-direction:column;gap:6px;margin-bottom:8px;width:100%;align-items:center;">
+                <button class="foul-btn red-penalty-btn" data-team="red" data-action="罚球" style="background:#fff;color:#f56565;border:2px solid #f56565;padding:4px 10px;font-size:14px;width:90%;">攻方罚球</button>
+                <button class="foul-btn red-ban15-btn" data-team="red" data-action="禁赛15s" style="background:#fff;color:#f56565;border:2px solid #f56565;padding:4px 10px;font-size:14px;width:90%;">禁赛15s</button>
+                <button class="foul-btn red-ban30-btn" data-team="red" data-action="禁赛30s" style="background:#fff;color:#f56565;border:2px solid #f56565;padding:4px 10px;font-size:14px;width:90%;">禁赛30s</button>
+                <!-- 红队禁赛倒计时显示区域 -->
+                <div class="ban-timer-display" data-team="red" style="background:white;color:#f56565;border:2px solid #f56565;border-radius:5px;display:inline-block;margin-bottom:4px;font-size:14px;font-weight:bold;box-shadow:inset 0 0 5px rgba(0,0,0,0.2);font-family:'Digital-7',monospace;text-align:center;width:90%;height:32px;line-height:32px;padding:0;">0.00</div>
+            </div>
+            <div class="foul-history-section" style="width:100%;margin-top:8px;">
+                <div class="history-header" style="white-space:nowrap;">
+                    <span style="flex:1;text-align:center;width:100%;">行为</span>
+                    <span style="flex:1;text-align:center;width:100%;">犯规时间</span>
+                </div>
+                <div class="foul-history-content" style="white-space:nowrap;"></div>
+            </div>
+        </div>
+        <!-- 红队按钮区域 -->
+        <div class="team-section team-red">
+            <div class="team-name">Red</div>
+            <div class="team-score">0</div>
+            <div class="timer-display">20.00</div>
+            <!-- 现在开始按钮 -->
+            <button class="control-btn"><i class="fas fa-play-circle"></i> 现在开始</button>
+            <!-- 新增控球变更按钮 -->
+            <button class="control-btn possession-change-trigger" style="background-color:#f56565;color:white;margin-bottom:8px;"><i class="fas fa-random"></i> 控球变更</button>
+            <!-- 添加红队得分面板 -->
+            <div class="score-panel score-panel-red">
+                <div class="panel-header">红队得分</div>
+                <div class="score-buttons">
+                    <button class="score-btn dunk-btn" data-team="red" data-points="7">
+                        <i class="fas fa-basketball-ball"></i> 扣篮 (7分)
+                    </button>
+                    <button class="score-btn three-pointer-btn" data-team="red" data-points="3">
+                        <i class="fas fa-bullseye"></i> 三分球
+                    </button>
+                    <button class="score-btn two-pointer-btn" data-team="red" data-points="2">
+                        <i class="fas fa-dot-circle"></i> 二分球
+                    </button>
+                    <button class="score-btn dribble-btn" data-team="red" data-points="1">
+                        <i class="fas fa-running"></i> 运球 (1分)
+                        <span class="dribble-counter">0/2</span>
+                    </button>
+                </div>
+            </div>
+            
+            <div class="history-section">
+                <div class="history-header">
+                    <span>行为</span>
+                    <span>时间</span>
+                </div>
+                <div class="history-content"></div>
+            </div>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+    <audio id="roundStartSound" src="start.mp3"></audio>
+    <audio id="countdown3Sound" src="3.mp3"></audio>
+    <audio id="countdown2Sound" src="2.mp3"></audio>
+    <audio id="countdown1Sound" src="1.mp3"></audio>
+    <audio id="countdown0Sound" src="0.mp3"></audio>
+    <audio id="banEndSound" src="4.mp3"></audio>
+</body>
+</html>

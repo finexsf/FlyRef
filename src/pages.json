@@ -1,0 +1,21 @@
+{
+  "pages": [
+    {
+      "path": "pages/index/index",
+      "style": {
+        "navigationBarTitleText": "篮球裁判系统",
+        "navigationBarBackgroundColor": "#4a5568",
+        "navigationBarTextStyle": "white",
+        "backgroundColor": "#4a5568",
+        "pageOrientation": "landscape"
+      }
+    }
+  ],
+  "globalStyle": {
+    "navigationBarTextStyle": "white",
+    "navigationBarTitleText": "篮球裁判系统",
+    "navigationBarBackgroundColor": "#4a5568",
+    "backgroundColor": "#4a5568",
+    "pageOrientation": "landscape"
+  }
+}
